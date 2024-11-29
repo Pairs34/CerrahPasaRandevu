@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Randevu Otomasyonu",
+  "version": "1.0",
+  "description": "Randevu işlemlerini otomatikleştiren Chrome eklentisi.",
+  "permissions": [
+    "scripting",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://randevu.iuc.edu.tr/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://randevu.iuc.edu.tr/appointment"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "styles.css"
+      ],
+      "run_at": "document_end"
+    }
+  ]
+}

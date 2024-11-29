@@ -1,0 +1,1 @@
+// Gerekirse ileride fonksiyon eklenebilir
