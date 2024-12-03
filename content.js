@@ -50,7 +50,10 @@ function toggleAppointments() {
 // Uygun saatleri sorgulama
 async function fetchAvailableTimes() {
   const token = getCredentials()?.token;
-  if (!token) return [];
+  if (!token) {
+    console.error("Token bulunamadı.");
+    return [];
+  }
 
   const url =
     "https://ishopweb.isuzem.com/proxy/api/2.0/MobileAppointmentApi/GetVisits/CTF/1060";
@@ -61,16 +64,38 @@ async function fetchAvailableTimes() {
   };
 
   try {
-    const response = await fetch(url, { method: "GET", headers });
-    if (response.ok) {
-      const data = await response.json();
-      return data.flatMap((day) =>
-        day.items.filter((item) => item.verilebilir).map((item) => item.saat)
+    const response = await fetch(url, {
+      method: "GET",
+      headers,
+    });
+
+    // CORS ve network hatalarını yakalamak için ek kontrol
+    if (!response.ok) {
+      console.error(
+        "Saat sorgulama hatası:",
+        response.status,
+        response.statusText
       );
-    } else {
-      console.error("Saat sorgulama hatası:", response.statusText);
+      const errorText = await response.text(); // Body kısmını debug için al
+      console.error("Hata Detayı:", errorText);
       return [];
     }
+
+    // Gelen JSON'u kontrol et
+    const contentType = response.headers.get("Content-Type");
+    if (!contentType || !contentType.includes("application/json")) {
+      console.error("Beklenmeyen içerik tipi:", contentType);
+      return [];
+    }
+
+    // JSON parse işlemi
+    const data = await response.json();
+    console.log("API'den Gelen Veri:", data);
+
+    // Saatleri ayıklama
+    return data.flatMap((day) =>
+      day.items.filter((item) => item.verilebilir).map((item) => item.saat)
+    );
   } catch (error) {
     console.error("Saat sorgulama başarısız:", error);
     return [];
